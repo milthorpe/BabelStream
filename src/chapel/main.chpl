@@ -146,6 +146,7 @@ proc run(type eltType) {
   }
 
   var stream = new chapelStream(eltType);
+  stream.initArrays(startA:eltType, startB:eltType, startC:eltType);
 
   // Run the 5 main kernels
   var sum: eltType;
