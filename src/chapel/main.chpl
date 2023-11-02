@@ -128,18 +128,18 @@ proc run(type eltType) {
 
     if mibibytes {
       // MiB = 2^20
-      writef("Array size: %.1dr MiB (= %.1dr GiB)\n", 
+      writef("Array size: %.1dr MiB (=%.1dr GiB)\n", 
         arraySize*c_sizeof(eltType)*exp2(-20.0),
         arraySize*c_sizeof(eltType)*exp2(-30.0));
-      writef("Total size: %.1dr MiB (= %.1dr GiB)\n", 
+      writef("Total size: %.1dr MiB (=%.1dr GiB)\n", 
         3.0*arraySize*c_sizeof(eltType)*exp2(-20.0),
         3.0*arraySize*c_sizeof(eltType)*exp2(-30.0));
     } else {
       // MB = 10^6
-      writef("Array size: %.1dr MB (= %.1dr GB)\n", 
+      writef("Array size: %.1dr MB (=%.1dr GB)\n", 
         arraySize*c_sizeof(eltType)*1.0E-6,
         arraySize*c_sizeof(eltType)*1.0E-9);
-      writef("Total size: %.1dr MB (= %.1dr GB)\n", 
+      writef("Total size: %.1dr MB (=%.1dr GB)\n", 
         3.0*arraySize*c_sizeof(eltType)*1.0E-6,
         3.0*arraySize*c_sizeof(eltType)*1.0E-9);
     }
@@ -253,7 +253,7 @@ proc run(type eltType) {
           maxTime, csv_separator,
           average);
       } else {
-        writef("%12s%12.3dr%12.5dr%12.5dr%12.5dr\n",
+        writef("%<12s%<12.3dr%<12.5dr%<12.5dr%<12.5dr\n",
           labels[i], (if (mibibytes) then exp2(-20.0) else 1.0E-6) * sizes[i] / minTime, minTime, maxTime, average);
           /*
           << std::left << std::setw(12) << labels[i]
