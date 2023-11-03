@@ -100,20 +100,24 @@ module Stream {
         proc dot(type eltType):eltType {
             var sum: eltType = 0;
             const DOT_NUM_BLOCKS = 256;
-            var blockSum: [DOT_NUM_BLOCKS] eltType;
-
+            var blockSum: [0..#DOT_NUM_BLOCKS] eltType;
+            /*
+            // TODO strided loops are not supported. https://github.com/chapel-lang/chapel/issues/23497
+            // Not sure about shared array either
             on here.gpus[deviceIndex] {
+                var blockSumDev: [0..#DOT_NUM_BLOCKS] eltType;
                 var tbSum = createSharedArray(eltType, TBSIZE);
                 const a = myData.a;
                 const b = myData.b;
                 const numThreads = TBSIZE * DOT_NUM_BLOCKS; // __primitive("gpu blockDim x") * __primitive("gpu gridDim x");
-                foreach i in 0..#numThreads {
+                @assertOnGpu foreach i in 0..#numThreads {
                     const localI = __primitive("gpu threadIdx x");
-                    tb_sum[localI] = 0: eltType
+                    const blockDimX = __primitive("gpu blockDim x");
+                    tbSum[localI] = 0: eltType;
                     for j in i..#arraySize by numThreads {
-                        tb_sum[localI] += a[i] * b[i];
+                        //tbSum[localI] += a[i] * b[i];
                     }
-                    var offset = blockDim.x / 2;
+                    var offset = blockDimX / 2;
                     while offset > 0 {
                         syncThreads();
                         if localI < offset then
@@ -121,10 +125,17 @@ module Stream {
 
                         offset /= 2;
                     }
+                    if (localI == 0) {
+                        const blockIdxX = __primitive("gpu blockIdx x");
+                        blockSum[blockIdxX] = tbSum[localI];
+                    }
                 }
+                blockSum = blockSumDev;
             }
-            
-            /*
+
+            sum = + reduce blockSum;
+            */
+
             on here.gpus[deviceIndex] {
                 const a = myData.a;
                 const b = myData.b;
@@ -132,7 +143,6 @@ module Stream {
                     sum += a * b;
                 }
             }
-            */
             return sum;
         }
     }
