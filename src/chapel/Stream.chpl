@@ -12,9 +12,10 @@ module Stream {
 
     record data {
         type eltType;
-        var a: [0..#arraySize] eltType;
-        var b: [0..#arraySize] eltType;
-        var c: [0..#arraySize] eltType;
+        const vectorDom = 0..#arraySize;
+        var a: [vectorDom] eltType;
+        var b: [vectorDom] eltType;
+        var c: [vectorDom] eltType;
     }
 
     record chapelStream {
@@ -99,9 +100,9 @@ module Stream {
 
         proc dot(type eltType):eltType {
             var sum = 0: eltType;
+            /*
             const DOT_NUM_BLOCKS = 256;
             var blockSum: [0..#DOT_NUM_BLOCKS] eltType;
-            /*
             // TODO strided loops are not supported. https://github.com/chapel-lang/chapel/issues/23497
             // Not sure about shared array either
             on here.gpus[deviceIndex] {
