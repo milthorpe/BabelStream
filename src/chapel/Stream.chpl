@@ -98,7 +98,7 @@ module Stream {
         }
 
         proc dot(type eltType):eltType {
-            var sum: eltType = 0;
+            var sum = 0: eltType;
             const DOT_NUM_BLOCKS = 256;
             var blockSum: [0..#DOT_NUM_BLOCKS] eltType;
             /*
