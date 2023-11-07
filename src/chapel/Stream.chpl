@@ -43,7 +43,7 @@ module Stream {
             on here.gpus[deviceIndex] do myData = new data(eltType);
         }
 
-        proc initArrays(initA, initB, initC) {
+        proc ref initArrays(initA, initB, initC) {
             on here.gpus[deviceIndex] {
                 myData.a = initA;
                 myData.b = initB;
@@ -51,21 +51,21 @@ module Stream {
             }
         }
 
-        proc copy() {
+        proc ref copy() {
             on here.gpus[deviceIndex] {
                 foreach (a, c) in zip(myData.a, myData.c) do
                     c = a;
             }
         }
 
-        proc add() {
+        proc ref add() {
             on here.gpus[deviceIndex] {
                 foreach (a, b, c) in zip(myData.a, myData.b, myData.c) do
                     c = a + b;
             }
         }
 
-        proc mul() {
+        proc ref mul() {
             on here.gpus[deviceIndex] {
                 const scalar = startScalar: eltType;
                 foreach (b, c) in zip(myData.b, myData.c) do
@@ -73,7 +73,7 @@ module Stream {
             }
         }
 
-        proc triad() {
+        proc ref triad() {
             on here.gpus[deviceIndex] {
                 const scalar = startScalar: eltType;
                 foreach (a, b, c) in zip(myData.a, myData.b, myData.c) do
@@ -81,7 +81,7 @@ module Stream {
             }
         }
 
-        proc nstream() {
+        proc ref nstream() {
             on here.gpus[deviceIndex] {
                 const scalar = startScalar: eltType;
                 /*
@@ -98,7 +98,7 @@ module Stream {
             }
         }
 
-        proc dot(type eltType):eltType {
+        proc ref dot(type eltType):eltType {
             var sum = 0: eltType;
             /*
             const DOT_NUM_BLOCKS = 256;
