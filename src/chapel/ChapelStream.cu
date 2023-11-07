@@ -26,6 +26,8 @@ char* get_device_name(const int device) {
   cudaGetDeviceProperties(&props, device);
   check_error();
   std::string device_name(props.name);
-  return device_name.data();
+  char* data = (char*)malloc(sizeof(char)*device_name.length());
+  device_name.copy(data, device_name.length());
+  return data;
 }
 }
