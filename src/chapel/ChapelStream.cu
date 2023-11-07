@@ -21,11 +21,11 @@ int get_device_driver_version(const int device) {
     return driver;
 }
 
-std::string get_device_name(const int device) {
+char* get_device_name(const int device) {
   cudaDeviceProp props;
   cudaGetDeviceProperties(&props, device);
   check_error();
   std::string device_name(props.name);
-  return device_name;
+  return device_name.data();
 }
 }
