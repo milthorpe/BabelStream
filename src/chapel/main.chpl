@@ -11,6 +11,7 @@ use Time;
 use Math;
 use CTypes;
 use Stream;
+use Version;
 
 config type eltType = real;
 param VERSION_STRING = "4.0";
@@ -82,10 +83,10 @@ proc main(args: [] string) {
     if !outputAsCsv {
       writeln("BabelStream");
       writeln("Version: ", VERSION_STRING);
-      writeln("Implementation: Chapel");
+      writeln("Implementation: Chapel ", Version.chplVersion);
     }
 
-        if (listArg.valueAsBool()) {
+    if (listArg.valueAsBool()) {
         listDevices();
         exit(0);
     }
@@ -133,11 +134,8 @@ proc run(type eltType) {
     }
   }
 
-  var stream = new chapelStream(eltType);
-  stream.initArrays(startA:eltType, startB:eltType, startC:eltType);
-
-  // Run the 5 main kernels
-  var sum = 0: eltType;
+  // Create host vectors
+  var stream: owned chapelStream(eltType) = makeChapelStream(startA:eltType, startB:eltType, startC:eltType);
   
   const benchmarkRange = if selection == Benchmark.All then 0..#5 else 0..#1;
   var timings: [benchmarkRange, 0..#numTimes] real;
@@ -146,11 +144,18 @@ proc run(type eltType) {
     runTriad(stream, timings);
   else if selection == Benchmark.Nstream then
     runNstream(stream, timings);
-  else
-    runAll(eltType, stream, timings, sum);
+  else {
+    var sum = 0: eltType;
+    sum = runAll(stream, timings);
 
   // Check solutions
-  // Create host vectors
+  // TODO proper check
+    var testA = stream.A;
+    var testB = stream.B;
+    var testProd = testA * testB;
+    var testSum = + reduce testProd;
+    writeln(sum, " ", testSum);
+  }
 
   // Display timing results
   if outputAsCsv {
@@ -242,46 +247,49 @@ proc run(type eltType) {
 }
 
 // Run the 5 main kernels
-proc runAll(type eltType, ref stream, ref timings, out sum: eltType) {
+proc runAll(ref stream, ref timings): stream.eltType {
+  var sum: stream.eltType;
   var timer: stopwatch;
 
   // Main loop
   for k in 0..#numTimes {
       // Execute Copy
       timer.start();
-      stream.copy();
+      on stream.locale do stream.copy();
       timer.stop();
       timings[0,k] = timer.elapsed();
       timer.clear();
 
       // Execute Mul
       timer.start();
-      stream.mul();
+      on stream.locale do stream.mul();
       timer.stop();
       timings[1,k] = timer.elapsed();
       timer.clear();
 
       // Execute Add
       timer.start();
-      stream.add();
+      on stream.locale do stream.add();
       timer.stop();
       timings[2,k] = timer.elapsed();
       timer.clear();
 
       // Execute Triad
       timer.start();
-      stream.triad();
+      on stream.locale do stream.triad();
       timer.stop();
       timings[3,k] = timer.elapsed();
       timer.clear();
 
       // Execute Dot
       timer.start();
-      sum = stream.dot(eltType);
+      on stream.locale do sum = stream.dot();
       timer.stop();
       timings[4,k] = timer.elapsed();
       timer.clear();
   }
+
+  return sum;
 }
 
 // Run the Triad kernel
@@ -292,7 +300,7 @@ proc runTriad(ref stream, ref timings) {
   timer.start();
   for k in 0..#numTimes {
       // Execute Triad
-      stream.triad();
+      on stream.locale do stream.triad();
   }
   timer.stop();
   timings[0,0] = timer.elapsed();
@@ -306,9 +314,11 @@ proc runNstream(ref stream, ref timings) {
   // Run nstream in loop
   for k in 0..#numTimes {
       timer.start();
-      stream.nstream();
+      on stream.locale do stream.nstream();
       timer.stop();
       timings[0,k] = timer.elapsed();
       timer.clear();
   }
 }
+
+
