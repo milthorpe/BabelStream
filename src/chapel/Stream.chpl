@@ -65,15 +65,18 @@ module Stream {
     class chapelStream {
         type eltType;
         var vectorDom = 0..#arraySize;
-        var A: [vectorDom] eltType;
-        var B: [vectorDom] eltType;
-        var C: [vectorDom] eltType;
+        var A: [vectorDom] eltType = noinit;
+        var B: [vectorDom] eltType = noinit;
+        var C: [vectorDom] eltType = noinit;
 
         proc init(initA: ?eltType, initB: eltType, initC: eltType) {
             this.eltType = eltType;
-            A = initA;
-            B = initB;
-            C = initC;
+            init this;
+            forall i in vectorDom {
+                A[i] = initA;
+                B[i] = initB;
+                C[i] = initC;
+            }
         }
 
         proc copy() {
