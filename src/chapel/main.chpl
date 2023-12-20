@@ -6,7 +6,6 @@
 // source code
 
 use ArgumentParser; 
-use IO;
 use Time;
 use Math;
 use CTypes;
@@ -30,27 +29,6 @@ enum Benchmark {All, Triad, Nstream}
 
 // Selected run options.
 var selection: Benchmark = Benchmark.All;
-
-extern proc get_device_driver_version(const deviceIndex: int(32)): int(32);
-extern proc get_device_name(const deviceIndex: int(32)): c_ptrConst(c_char);
-
-proc getDeviceName(deviceIndex: int(32)) {
-  const deviceName = get_device_name(deviceIndex);
-  return string.createBorrowingBuffer(deviceName);
-}
-
-proc listDevices() {
-    if here.gpus.size == 0 {
-        stderr.writeln("No devices found.");
-    } else {
-        writeln("Devices:");
-        writeln();
-        forall deviceId in 0..#here.gpus.size do
-          writeln(deviceId, ": ", getDeviceName(deviceId: int(32)));
-        writeln();
-    }
-}
-
 
 proc main(args: [] string) {
     var parser = new argumentParser();
@@ -86,8 +64,8 @@ proc main(args: [] string) {
       writeln("Implementation: Chapel ", Version.chplVersion);
     }
 
-    if (listArg.valueAsBool()) {
-        listDevices();
+    if (useGPU && listArg.valueAsBool()) {
+        Stream.listDevices();
         exit(0);
     }
 
