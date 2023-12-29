@@ -44,7 +44,6 @@ macro(setup)
 
     elseif (${SYCL_COMPILER} STREQUAL "COMPUTECPP")
 
-        list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
         set(ComputeCpp_DIR ${SYCL_COMPILER_DIR})
 
         setup_opencl_header_includes()

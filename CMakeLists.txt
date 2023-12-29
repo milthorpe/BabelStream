@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
+include(BabelStreamPolicy)
+
 project(BabelStream VERSION 4.0 LANGUAGES CXX)
 
 # uncomment for debugging build issues:
