@@ -6,6 +6,8 @@ endif ()
 
 project(BabelStream VERSION 5.0 LANGUAGES CXX C)
 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
+
 # uncomment for debugging build issues:
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
