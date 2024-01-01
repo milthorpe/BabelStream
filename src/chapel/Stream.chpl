@@ -64,7 +64,8 @@ module Stream {
 
     class chapelStream {
         type eltType;
-        var vectorDom = 0..#arraySize;
+        const scalar = startScalar: eltType;
+        const vectorDom = 0..#arraySize;
         var A: [vectorDom] eltType = noinit;
         var B: [vectorDom] eltType = noinit;
         var C: [vectorDom] eltType = noinit;
@@ -90,19 +91,16 @@ module Stream {
         }
 
         proc mul() {
-            const scalar = startScalar: eltType;
             forall (b, c) in zip(B, C) do
                 b = scalar * c;
         }
 
         proc triad() {
-            const scalar = startScalar: eltType;
             forall (a, b, c) in zip(A, B, C) do
                 a = b + scalar * c;
         }
 
         proc nstream() {
-            const scalar = startScalar: eltType;
             forall (a, b, c) in zip(A, B, C) do
                 a += b + scalar * c;
         }
