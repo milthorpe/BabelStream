@@ -6,6 +6,7 @@
 // source code
 
 use ArgumentParser; 
+use IO;
 use Time;
 use Math;
 use CTypes;
@@ -64,8 +65,12 @@ proc main(args: [] string) {
       writeln("Implementation: Chapel ", Version.chplVersion);
     }
 
-    if (useGPU && listArg.valueAsBool()) {
-        Stream.listDevices();
+    if (listArg.valueAsBool()) {
+        if useGPU {
+          Stream.listDevices();
+        } else {
+          writeln(stderr, "No devices found. (Did you mean to build BabelStream with -suseGPU=true?)");
+        }
         exit(0);
     }
 
