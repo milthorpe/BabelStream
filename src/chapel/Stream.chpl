@@ -81,28 +81,28 @@ module Stream {
         }
 
         proc copy() {
-            forall (a, c) in zip(A, C) do
-                c = a;
+            forall i in vectorDom do
+                C[i] = A[i];
         }
 
         proc add() {
-            forall (a, b, c) in zip(A, B, C) do
-                c = a + b;
+            forall i in vectorDom do
+                C[i] = A[i] + B[i];
         }
 
         proc mul() {
-            forall (b, c) in zip(B, C) do
-                b = scalar * c;
+            forall i in vectorDom do
+                B[i] = scalar * C[i];
         }
 
         proc triad() {
-            forall (a, b, c) in zip(A, B, C) do
-                a = b + scalar * c;
+            forall i in vectorDom do
+                A[i] = B[i] + scalar * C[i];
         }
 
         proc nstream() {
-            forall (a, b, c) in zip(A, B, C) do
-                a += b + scalar * c;
+            forall i in vectorDom do
+                A[i] += B[i] + scalar * C[i];
         }
 
         proc dot():eltType {
