@@ -64,7 +64,7 @@ module Stream {
 
     class chapelStream {
         type eltType;
-        const scalar = startScalar: eltType;
+        param scalar = startScalar: eltType;
         const vectorDom = 0..#arraySize;
         var A: [vectorDom] eltType = noinit;
         var B: [vectorDom] eltType = noinit;
