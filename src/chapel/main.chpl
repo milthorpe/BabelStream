@@ -63,7 +63,7 @@ proc main(args: [] string) {
         if useGPU {
           Stream.listDevices();
         } else {
-          writeln(stderr, "No devices found. (Did you mean to build BabelStream with -suseGPU=true?)");
+          try! stderr.writeln("No devices found. (Did you mean to build BabelStream with -suseGPU=true?)");
         }
         exit(0);
     }
