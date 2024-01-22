@@ -59,12 +59,6 @@ proc main(args: [] string) {
     outputAsCsv = csvArg.valueAsBool();
     mibibytes = mibibytesArg.valueAsBool();
 
-    if !outputAsCsv {
-      writeln("BabelStream");
-      writeln("Version: ", VERSION_STRING);
-      writeln("Implementation: Chapel ", Version.chplVersion);
-    }
-
     if (listArg.valueAsBool()) {
         if useGPU {
           Stream.listDevices();
@@ -72,6 +66,12 @@ proc main(args: [] string) {
           writeln(stderr, "No devices found. (Did you mean to build BabelStream with -suseGPU=true?)");
         }
         exit(0);
+    }
+
+    if !outputAsCsv {
+      writeln("BabelStream");
+      writeln("Version: ", VERSION_STRING);
+      writeln("Implementation: Chapel ", Version.chplVersion);
     }
 
     deviceIndex = deviceArg.value(): int(32);
