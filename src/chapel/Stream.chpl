@@ -154,5 +154,11 @@ module Stream {
             }
             return sum;
         }
+
+        proc readArrays(ref a: [vectorDom] eltType, ref b: [vectorDom] eltType, ref c: [vectorDom] eltType) {
+            a = A;
+            b = B;
+            c = C;
+        }
     }
 }

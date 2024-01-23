@@ -14,7 +14,7 @@ use Stream;
 use Version;
 
 config type eltType = real;
-param VERSION_STRING = "4.0";
+param VERSION_STRING = "5.0";
 
 var numTimes: uint = 100;
 var useFloat = false;
@@ -117,9 +117,14 @@ proc run(type eltType) {
     }
   }
 
+  var timer: stopwatch;
+
   // Create host vectors
+  timer.start();
   var stream: owned chapelStream(eltType) = makeChapelStream(startA:eltType, startB:eltType, startC:eltType);
-  
+  timer.stop();
+  const initElapsedS = timer.elapsed();
+
   const benchmarkRange = if selection == Benchmark.All then 0..#5 else 0..#1;
   var timings: [benchmarkRange, 0..#numTimes] real;
 
@@ -130,15 +135,43 @@ proc run(type eltType) {
   else {
     var sum = 0: eltType;
     sum = runAll(stream, timings);
+  }
+
+  var a, b, c: [stream.vectorDom] eltType = noinit;
+
+  timer.clear();
+  timer.start();
+  stream.readArrays(a, b, c);
+  timer.stop();
+  const readElapsedS = timer.elapsed();
+  const initBWps = ((if mibibytes then exp2(-20.0) else 1.0E-6) * (3 * c_sizeof(eltType) * arraySize)) / initElapsedS;
+  const readBWps = ((if mibibytes then exp2(-20.0) else 1.0E-6) * (3 * c_sizeof(eltType) * arraySize)) / readElapsedS;
+
+  if outputAsCsv {
+    writeln("phase", csv_separator,
+      "n_elements", csv_separator,
+      "sizeof", csv_separator,
+      (if mibibytes then  "max_mibytes_per_sec" else "max_mbytes_per_sec"), csv_separator,
+      "runtime");
+    writeln("Init", csv_separator,
+      arraySize, csv_separator,
+      c_sizeof(eltType), csv_separator,
+      initBWps, csv_separator,
+      initElapsedS, csv_separator);
+    writeln("Read", csv_separator,
+      arraySize, csv_separator,
+      c_sizeof(eltType), csv_separator,
+      readBWps, csv_separator,
+      readElapsedS, csv_separator);
+  } else {
+    writef("Init: %<7s s (=%<7s %<s)\n", initElapsedS, initBWps, (if mibibytes then " MiBytes/sec" else " MBytes/sec"));
+    writef("Read: %<7s s (=%<7s %<s)\n", readElapsedS, readBWps, (if mibibytes then " MiBytes/sec" else " MBytes/sec"));
+  }
 
   // Check solutions
   // TODO proper check
-    var testA = stream.A;
-    var testB = stream.B;
-    var testProd = testA * testB;
-    var testSum = + reduce testProd;
-    writeln(sum, " ", testSum);
-  }
+  //var testSum = + reduce (a * b);
+  //writeln(sum, " ", testSum);
 
   // Display timing results
   if outputAsCsv {
