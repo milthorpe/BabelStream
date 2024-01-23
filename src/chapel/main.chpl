@@ -128,14 +128,13 @@ proc run(type eltType) {
   const benchmarkRange = if selection == Benchmark.All then 0..#5 else 0..#1;
   var timings: [benchmarkRange, 0..#numTimes] real;
 
+  var sum = 0: eltType;
   if selection == Benchmark.Triad then
     runTriad(stream, timings);
   else if selection == Benchmark.Nstream then
     runNstream(stream, timings);
-  else {
-    var sum = 0: eltType;
+  else
     sum = runAll(stream, timings);
-  }
 
   var a, b, c: [stream.vectorDom] eltType = noinit;
 
@@ -168,10 +167,7 @@ proc run(type eltType) {
     writef("Read: %<7s s (=%<7s %<s)\n", readElapsedS, readBWps, (if mibibytes then " MiBytes/sec" else " MBytes/sec"));
   }
 
-  // Check solutions
-  // TODO proper check
-  //var testSum = + reduce (a * b);
-  //writeln(sum, " ", testSum);
+  checkSolution(numTimes, a, b, c, sum);
 
   // Display timing results
   if outputAsCsv {
@@ -337,4 +333,60 @@ proc runNstream(ref stream, ref timings) {
   }
 }
 
+proc checkSolution(const ntimes, ref a, ref b, ref c, const sum: eltType) {
+  // Generate correct solution
+  var goldA = startA;
+  var goldB = startB;
+  var goldC = startC;
+
+  const scalar = startScalar;
+
+  for i in 0..#ntimes {
+    // Do STREAM!
+    if selection == Benchmark.All {
+      goldC = goldA;
+      goldB = scalar * goldC;
+      goldC = goldA + goldB;
+      goldA = goldB + scalar * goldC;
+    } else if selection == Benchmark.Triad {
+      goldA = goldB + scalar * goldC;
+    } else if selection == Benchmark.Nstream {
+      goldA += goldB + scalar * goldC;
+    }
+  }
+
+  // Do the reduction
+  const goldSum = goldA * goldB * arraySize;
+
+  // Calculate the average error
+  const errA = + reduce abs(a - goldA) / a.size;
+  const errB = + reduce abs(b - goldB) / b.size;
+  const errC = + reduce abs(c - goldC) / c.size;
+  const errSum = abs((sum - goldSum) / goldSum);
+
+  const epsi = epsilon(eltType) * 100.0;
+
+  if errA > epsi then
+    try! stderr.writeln("Validation failed on a[]. Average error ", errA);
+  if errB > epsi then
+    try! stderr.writeln("Validation failed on b[]. Average error ", errB);
+  if errC > epsi then
+    try! stderr.writeln("Validation failed on c[]. Average error ", errC);
+  // Check sum to 8 decimal places
+  if selection == Benchmark.All && errSum > 1.0E-8 then
+    try! stderr.writef("Validation failed on sum. Error %dr\nSum was %.15dr but should be %.15dr\n", errSum, sum, goldSum);
+
+}
+
+/* Machine epsilon for real(64) */
+private proc epsilon(type t: real(64)) : real {
+  extern const DBL_EPSILON: real;
+  return DBL_EPSILON;
+}
+
+/* Machine epsilon for real(32) */
+private proc epsilon(type t: real(32)) : real {
+  extern const FLT_EPSILON: real;
+  return FLT_EPSILON;
+}
 
