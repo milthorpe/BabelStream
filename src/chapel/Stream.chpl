@@ -49,7 +49,7 @@ module Stream {
                 if CHPL_GPU == "nvidia" {
                     writeln("Using CUDA device ", getDeviceName(deviceIndex));
                 } else if CHPL_GPU == "amd" {
-                    //writeln("Using ROCM device ", getDeviceName(deviceIndex));
+                    writeln("Using ROCM device ", getDeviceName(deviceIndex));
                 }
                 writeln("Driver: ", get_device_driver_version(deviceIndex));
             }
