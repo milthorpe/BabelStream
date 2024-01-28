@@ -28,8 +28,8 @@ module Stream {
         } else {
             writeln("Devices:");
             writeln();
-            forall deviceId in 0..#here.gpus.size do
-            writeln(deviceId, ": ", getDeviceName(deviceId: int(32)));
+            for deviceId in 0..#here.gpus.size do
+                writeln(deviceId, ": ", getDeviceName(deviceId: int(32)));
             writeln();
         }
     }
