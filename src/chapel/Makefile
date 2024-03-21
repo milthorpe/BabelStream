@@ -1,5 +1,5 @@
 #DEBUG=true
-CHPL_FLAGS=--detailed-errors --savec tmp --print-commands
+CHPL_FLAGS+=--detailed-errors --savec tmp --print-commands
 CHPL_SOURCE=main.chpl Stream.chpl
 ifeq ($(CHPL_LOCALE_MODEL),gpu)
 # GPU version
@@ -37,10 +37,14 @@ else
   CUDACXX_FLAGS+=-O3
 endif
 
-default:	chapel-stream
+# -------
+EXE = chapel-stream
+.PHONY: all $(BENCHMARK_EXE) clean
 
-run:	chapel-stream
-	./chapel-stream -n 2 -z 1024
+all: $(EXE)
+
+run:	$(EXE)
+	./$(EXE) -n 2 -z 1024
 
 ChapelStream_cu.o:	ChapelStream.cu
 ifndef CUDA_PATH
@@ -60,11 +64,11 @@ ifndef ROCM_PATH
 endif
 	hipcc $(CUDACXX_FLAGS) -c ChapelStream.hip -o $@
 
-chapel-stream:	$(CHPL_SOURCE)
+$(EXE):	$(CHPL_SOURCE)
 	chpl $(CHPL_FLAGS) $(CHPL_SOURCE) $(LDFLAGS) -o $@
 
 .PHONY:	clean
 
 clean:	
-	rm -rf chapel-stream ChapelStream_cu.o ChapelStream_hip.o
+	rm -rf $(EXE) ChapelStream_cu.o ChapelStream_hip.o
 
